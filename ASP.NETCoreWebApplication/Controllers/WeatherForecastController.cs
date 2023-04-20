@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Globalization;
+using ASP.NETCoreWebApplication.Models;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ASP.NETCoreWebApplication.Controllers;
 
@@ -6,27 +9,20 @@ namespace ASP.NETCoreWebApplication.Controllers;
 [Route("[controller]")]
 public class WeatherForecastController : ControllerBase
 {
-    private static readonly string[] Summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
-
+    private readonly IWeatherManagement _weatherManagement;
     private readonly ILogger<WeatherForecastController> _logger;
 
-    public WeatherForecastController(ILogger<WeatherForecastController> logger)
+    public WeatherForecastController(
+        IWeatherManagement weatherManagement,
+        ILogger<WeatherForecastController> logger)
     {
+        _weatherManagement = weatherManagement;
         _logger = logger;
     }
 
     [HttpGet]
-    public IEnumerable<WeatherForecast> Get()
+    public async Task<List<Weather>> Get()
     {
-        return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-        {
-            Date = DateTime.Now.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-        })
-        .ToArray();
+        return await _weatherManagement.Get();
     }
 }
